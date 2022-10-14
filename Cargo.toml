@@ -1,0 +1,22 @@
+[package]
+name = "ccthw_ash_instance"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ash = { version = "*", features = ["linked"] }
+thiserror = "*"
+log = "*"
+regex = "*"
+indoc = "*"
+
+[dev-dependencies]
+anyhow = "*"
+scopeguard = "*"
+flexi_logger = "*"
+assert2 = "*"
+
+
+[dev-dependencies.textwrap]
+features = ["terminal_size"]
+version = "*"
