@@ -1,4 +1,7 @@
-# Creative Coding The Hard Way - Ash Instance
+![build, test, and docs](https://github.com/Creative-Coding-The-Hard-Way/ash_instance/actions/workflows/build_test_upload_docs.yml/badge.svg)
+[![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE-MIT)
+
+# [Creative Coding The Hard Way - Ash Instance](https://creative-coding-the-hard-way.github.io/ash_instance/ccthw_ash_instance/index.html)
 
 A small library for handling the boilerplate associated with creating a
 Vulkan instance with extensions and layers.
