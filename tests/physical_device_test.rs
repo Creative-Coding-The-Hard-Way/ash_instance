@@ -3,8 +3,10 @@ use ccthw_ash_instance::VulkanInstance;
 mod common;
 
 use {
-    anyhow::Result, ash::vk, assert2::assert,
-    ccthw_ash_instance::PhysicalDeviceFeatures,
+    anyhow::Result,
+    ash::vk,
+    assert2::assert,
+    ccthw_ash_instance::{PhysicalDevice, PhysicalDeviceFeatures},
 };
 
 #[test]
@@ -16,7 +18,14 @@ pub fn get_physical_device_with_features() -> Result<()> {
     // It's not possible to know what features or what devices might be
     // available on the testing machine. It's good enough to just verify
     // that this method doesn't fail for now.
-    PhysicalDeviceFeatures::default().enumerate_supported_devices(&instance)?;
+    PhysicalDevice::enumerate_supported_devices(
+        &instance,
+        &PhysicalDeviceFeatures::default(),
+    )?
+    .iter()
+    .for_each(|device| {
+        log::info!("Found device {}", device.name());
+    });
 
     Ok(())
 }

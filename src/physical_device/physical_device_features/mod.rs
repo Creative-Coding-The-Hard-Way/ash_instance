@@ -1,8 +1,4 @@
-use {
-    crate::{InstanceResult, VulkanInstance},
-    ash::vk,
-    std::ffi::c_void,
-};
+use {crate::VulkanInstance, ash::vk, std::ffi::c_void};
 
 mod is_supported_by;
 
@@ -17,32 +13,11 @@ pub struct PhysicalDeviceFeatures {
 impl VulkanInstance {}
 
 impl PhysicalDeviceFeatures {
-    /// Enumerate all physical devices which support all of the desired
-    /// features.
-    ///
-    /// # Params
-    pub fn enumerate_supported_devices(
-        &self,
-        instance: &VulkanInstance,
-    ) -> InstanceResult<Vec<vk::PhysicalDevice>> {
-        let devices_with_requested_features =
-            unsafe { instance.ash().enumerate_physical_devices()? }
-                .into_iter()
-                .filter(|physical_device| {
-                    self.is_supported_by(&Self::from_physical_device(
-                        instance,
-                        physical_device,
-                    ))
-                })
-                .collect();
-        Ok(devices_with_requested_features)
-    }
-
     /// Get the physical device features for a given device.
     ///
     /// # Params
     ///
-    /// * `instance` - the instance which supports the physical device
+    /// * `instance` - the instance which provides access to the physical device
     /// * `physical_device` - the physical device to query for available
     ///   features
     pub fn from_physical_device(
