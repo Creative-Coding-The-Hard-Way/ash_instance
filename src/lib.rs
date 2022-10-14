@@ -1,161 +1,27 @@
-use {
-    ash::{extensions::ext::DebugUtils, vk},
-    indoc::indoc,
-};
+//! A small library for handling the boilerplate associated with creating a
+//! Vulkan instance with extensions and layers.
+//!
+//! # Examples
+//!
+//! ```
+//! use ccthw_ash_instance::{VulkanInstance, PhysicalDeviceFeatures};
+//!
+//! let instance = unsafe { VulkanInstance::new(&[], &[]).unwrap() };
+//!
+//! let mut physical_device_features = PhysicalDeviceFeatures::default();
+//! physical_device_features.maintenance4_mut().maintenance4 = ash::vk::TRUE;
+//!
+//! let devices: Vec<ash::vk::PhysicalDevice> = physical_device_features
+//!     .enumerate_supported_devices(&instance)
+//!     .unwrap();
+//! ```
 
-mod create_instance;
-mod debug_callback;
 mod error;
+mod physical_device;
+mod vulkan_instance;
 
-pub use self::error::{InstanceError, InstanceResult};
-
-/// The Ash instance, entry, and additional data provided when the instance was
-/// created.
-pub struct VulkanInstance {
-    layers: Vec<String>,
-    extensions: Vec<String>,
-
-    debug_messenger: Option<vk::DebugUtilsMessengerEXT>,
-    debug_utils: Option<DebugUtils>,
-
-    entry: ash::Entry,
-    ash: ash::Instance,
-}
-
-impl VulkanInstance {
-    /// Create a new Vulkan instance.
-    ///
-    /// # Params
-    ///
-    /// * `required_extensions` - All of the extension names required by this
-    ///   application. The DebugUtils extension is added automatically when
-    ///   compiled with debug assertions enabled.
-    /// * `required_layers` - All of the layers required by this application.
-    ///
-    /// # Returns
-    ///
-    /// The Vulkan Instance or an InstanceError if any of the extensions or
-    /// layers are unavailable.
-    ///
-    /// # Safety
-    ///
-    /// The Application must ensure that all device resources created with the
-    /// instance are destroyed proior to dropping the returned struct.
-    pub unsafe fn new(
-        required_extensions: &[String],
-        required_layers: &[String],
-    ) -> InstanceResult<Self> {
-        let actual_required_extensions =
-            Self::with_additional_extensions(required_extensions);
-
-        let (entry, ash) = Self::create_instance(
-            &actual_required_extensions,
-            required_layers,
-        )?;
-
-        let mut vulkan_instance = Self {
-            layers: required_layers.to_vec(),
-            extensions: actual_required_extensions.to_vec(),
-            debug_messenger: None,
-            debug_utils: None,
-            entry,
-            ash,
-        };
-
-        vulkan_instance.setup_debug_logger()?;
-
-        Ok(vulkan_instance)
-    }
-
-    /// The raw Ash Entry.
-    pub fn entry(&self) -> &ash::Entry {
-        &self.entry
-    }
-
-    /// The raw Ash library instance.
-    pub fn ash(&self) -> &ash::Instance {
-        &self.ash
-    }
-
-    /// The layers used to create this Vulkan Instance.
-    pub fn layers(&self) -> &[String] {
-        &self.layers
-    }
-
-    /// The extensions used to creat this Vulkan Instance.
-    pub fn extensions(&self) -> &[String] {
-        &self.extensions
-    }
-
-    /// Set the debug name for an object owned by the provided logical device.
-    ///
-    /// This is a no-op for release builds.
-    ///
-    /// # Params
-    ///
-    /// * `logical_device` - the logical Vulkan device used to create the object
-    ///   referenced by the name info struct.
-    /// * `name_info` - the name info struct containing the targeted object and
-    ///   its new name.
-    #[cfg(debug_assertions)]
-    pub fn debug_utils_set_object_name(
-        &self,
-        logical_device: &ash::Device,
-        name_info: &vk::DebugUtilsObjectNameInfoEXT,
-    ) {
-        let result = unsafe {
-            self.debug_utils
-                .as_ref()
-                .unwrap()
-                .debug_utils_set_object_name(logical_device.handle(), name_info)
-        };
-        if result.is_err() {
-            log::warn!(
-                "Unable to set debug name for device! {:#?} {:#?}",
-                name_info,
-                result.err().unwrap()
-            );
-        }
-    }
-
-    /// Set the debug name for an object owned by the provided logical device.
-    ///
-    /// This is a no-op for release builds.
-    ///
-    /// # Params
-    ///
-    /// * `logical_device` - the logical Vulkan device used to create the object
-    ///   referenced by the name info struct.
-    /// * `name_info` - the name info struct containing the targeted object and
-    ///   its new name.
-    #[cfg(not(debug_assertions))]
-    pub fn debug_utils_set_object_name(
-        &self,
-        _logical_device: &ash::Device,
-        _name_info: &vk::DebugUtilsObjectNameInfoEXT,
-    ) {
-        // no-op
-    }
-}
-
-impl std::fmt::Display for VulkanInstance {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter.write_fmt(format_args!(
-            indoc!(
-                "VulkanInstance
-                  -> Layers: {:?}
-                  -> Extensions: {:?}"
-            ),
-            self.layers(),
-            self.extensions()
-        ))
-    }
-}
-
-impl Drop for VulkanInstance {
-    fn drop(&mut self) {
-        unsafe {
-            self.ash.destroy_instance(None);
-        }
-    }
-}
+pub use self::{
+    error::{InstanceError, InstanceResult},
+    physical_device::PhysicalDeviceFeatures,
+    vulkan_instance::VulkanInstance,
+};
