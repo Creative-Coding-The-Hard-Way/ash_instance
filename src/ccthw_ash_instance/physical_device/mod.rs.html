@@ -131,10 +131,6 @@
 <span id="131">131</span>
 <span id="132">132</span>
 <span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">physical_device_features</span>;
 <span class="kw">mod</span> <span class="ident">physical_device_properties</span>;
 
@@ -256,11 +252,7 @@
 
 <span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">PhysicalDevice</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="ident">formatter</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(
-            <span class="macro">indoc!</span>(<span class="string">&quot;{:?} | {}&quot;</span>),
-            <span class="self">self</span>.<span class="ident">properties</span>().<span class="ident">properties</span>().<span class="ident">device_type</span>,
-            <span class="self">self</span>.<span class="ident">name</span>(),
-        ))<span class="question-mark">?</span>;
+        <span class="ident">formatter</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="macro">indoc!</span>(<span class="string">&quot;{}&quot;</span>), <span class="self">self</span>.<span class="ident">name</span>(),))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 }

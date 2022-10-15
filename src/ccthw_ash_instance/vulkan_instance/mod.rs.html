@@ -173,19 +173,9 @@
 <span id="173">173</span>
 <span id="174">174</span>
 <span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
 </pre><pre class="rust"><code><span class="kw">use</span> {
     <span class="ident"><span class="kw">crate</span>::error::InstanceResult</span>,
     <span class="ident">ash</span>::{<span class="ident">extensions::ext::DebugUtils</span>, <span class="ident">vk</span>},
-    <span class="ident">indoc::indoc</span>,
     <span class="ident">std::fmt::Debug</span>,
 };
 
@@ -355,15 +345,7 @@
 
 <span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">VulkanInstance</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="ident">formatter</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(
-            <span class="macro">indoc!</span>(
-                <span class="string">&quot;VulkanInstance
-                  -&gt; Layers: {:?}
-                  -&gt; Extensions: {:?}&quot;</span>
-            ),
-            <span class="self">self</span>.<span class="ident">layers</span>(),
-            <span class="self">self</span>.<span class="ident">extensions</span>()
-        ))
+        <span class="ident">formatter</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="string">&quot;{:#?}&quot;</span>, <span class="self">self</span>))
     }
 }
 </code></pre></div>
