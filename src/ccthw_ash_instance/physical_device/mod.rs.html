@@ -90,12 +90,46 @@
 <span id="90">90</span>
 <span id="91">91</span>
 <span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">physical_device_features</span>;
 <span class="kw">mod</span> <span class="ident">physical_device_properties</span>;
 
 <span class="kw">use</span> {
-    <span class="kw">crate</span>::{<span class="ident">InstanceResult</span>, <span class="ident">VulkanHandle</span>, <span class="ident">VulkanInstance</span>},
+    <span class="kw">crate</span>::{<span class="ident">ffi</span>, <span class="ident">InstanceResult</span>, <span class="ident">VulkanHandle</span>, <span class="ident">VulkanInstance</span>},
     <span class="ident">ash::vk</span>,
+    <span class="ident">indoc::indoc</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
@@ -104,14 +138,29 @@
 };
 
 <span class="doccomment">/// A Vulkan physical device along with its properties and requested features.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Physical devices are purely descriptive and can be cloned without concern</span>
+<span class="doccomment">/// for underlying GPU resources.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PhysicalDevice</span> {
     <span class="ident">properties</span>: <span class="ident">PhysicalDeviceProperties</span>,
     <span class="ident">features</span>: <span class="ident">PhysicalDeviceFeatures</span>,
+    <span class="ident">available_extensions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">vk::ExtensionProperties</span><span class="op">&gt;</span>,
+    <span class="ident">queue_family_properties</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">vk::QueueFamilyProperties</span><span class="op">&gt;</span>,
     <span class="ident">physical_device</span>: <span class="ident">vk::PhysicalDevice</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">PhysicalDevice</span> {
+    <span class="doccomment">/// Properties for all queue families supported by this device.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">queue_family_properties</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">vk::QueueFamilyProperties</span>] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">queue_family_properties</span>
+    }
+
+    <span class="doccomment">/// The set of all extensions available on this device.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">available_extensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">vk::ExtensionProperties</span>] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">available_extensions</span>
+    }
+
     <span class="doccomment">/// The properties for this physical device.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">properties</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PhysicalDeviceProperties</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">properties</span>
@@ -124,16 +173,8 @@
 
     <span class="doccomment">/// The physical device name from the device properties struct.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="ident">String::from_utf8</span>(
-            <span class="self">self</span>.<span class="ident">properties</span>()
-                .<span class="ident">properties</span>()
-                .<span class="ident">device_name</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span> <span class="kw">as</span> <span class="ident">u8</span>)
-                .<span class="ident">collect</span>(),
-        )
-        .<span class="ident">unwrap</span>()
+        <span class="ident">ffi::string_from_i8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">properties</span>().<span class="ident">properties</span>().<span class="ident">device_name</span>)
+            .<span class="ident">unwrap</span>()
     }
 
     <span class="doccomment">/// Enumerate all physical devices which support the required featuers.</span>
@@ -147,7 +188,7 @@
         <span class="ident">instance</span>: <span class="kw-2">&amp;</span><span class="ident">VulkanInstance</span>,
         <span class="ident">required_features</span>: <span class="kw-2">&amp;</span><span class="ident">PhysicalDeviceFeatures</span>,
     ) -&gt; <span class="ident">InstanceResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">devices_with_requested_features</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> <span class="op">=</span>
+        <span class="kw">let</span> <span class="ident">all_supported_devices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">vk::PhysicalDevice</span><span class="op">&gt;</span> <span class="op">=</span>
             <span class="kw">unsafe</span> { <span class="ident">instance</span>.<span class="ident">ash</span>().<span class="ident">enumerate_physical_devices</span>()<span class="question-mark">?</span> }
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">physical_device</span><span class="op">|</span> {
@@ -158,20 +199,45 @@
                         ),
                     )
                 })
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">physical_device</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">properties</span> <span class="op">=</span>
-                        <span class="ident">PhysicalDeviceProperties::from_physical_device</span>(
-                            <span class="ident">instance</span>,
-                            <span class="kw-2">&amp;</span><span class="ident">physical_device</span>,
-                        );
-                    <span class="self">Self</span> {
-                        <span class="ident">properties</span>,
-                        <span class="ident">features</span>: <span class="kw-2">*</span><span class="ident">required_features</span>,
-                        <span class="ident">physical_device</span>,
-                    }
-                })
                 .<span class="ident">collect</span>();
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">devices_with_requested_features</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+        <span class="kw">for</span> <span class="ident">physical_device</span> <span class="kw">in</span> <span class="ident">all_supported_devices</span> {
+            <span class="kw">let</span> <span class="ident">properties</span> <span class="op">=</span> <span class="ident">PhysicalDeviceProperties::from_physical_device</span>(
+                <span class="ident">instance</span>,
+                <span class="kw-2">&amp;</span><span class="ident">physical_device</span>,
+            );
+            <span class="kw">let</span> <span class="ident">extension_properties</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+                <span class="ident">instance</span>
+                    .<span class="ident">ash</span>()
+                    .<span class="ident">enumerate_device_extension_properties</span>(<span class="ident">physical_device</span>)<span class="question-mark">?</span>
+            };
+            <span class="kw">let</span> <span class="ident">queue_family_properties</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+                <span class="ident">instance</span>.<span class="ident">ash</span>().<span class="ident">get_physical_device_queue_family_properties</span>(
+                    <span class="ident">physical_device</span>,
+                )
+            };
+            <span class="ident">devices_with_requested_features</span>.<span class="ident">push</span>(<span class="self">Self</span> {
+                <span class="ident">properties</span>,
+                <span class="ident">features</span>: <span class="kw-2">*</span><span class="ident">required_features</span>,
+                <span class="ident">available_extensions</span>: <span class="ident">extension_properties</span>,
+                <span class="ident">queue_family_properties</span>,
+                <span class="ident">physical_device</span>,
+            });
+        }
+
         <span class="prelude-val">Ok</span>(<span class="ident">devices_with_requested_features</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">PhysicalDevice</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
+        <span class="ident">formatter</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(
+            <span class="macro">indoc!</span>(<span class="string">&quot;{:?} | {}&quot;</span>),
+            <span class="self">self</span>.<span class="ident">properties</span>().<span class="ident">properties</span>().<span class="ident">device_type</span>,
+            <span class="self">self</span>.<span class="ident">name</span>(),
+        ))<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
     }
 }
 

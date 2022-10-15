@@ -52,40 +52,120 @@
 <span id="52">52</span>
 <span id="53">53</span>
 <span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A small library for handling the boilerplate associated with creating a</span>
 <span class="doccomment">//! Vulkan instance with extensions and layers.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Examples</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```</span>
-<span class="doccomment">//! use ccthw_ash_instance::{</span>
-<span class="doccomment">//!     VulkanInstance,</span>
-<span class="doccomment">//!     PhysicalDeviceFeatures,</span>
-<span class="doccomment">//!     PhysicalDevice</span>
+<span class="doccomment">//! use {</span>
+<span class="doccomment">//!     ash::vk,</span>
+<span class="doccomment">//!     ccthw_ash_instance::{</span>
+<span class="doccomment">//!         VulkanInstance,</span>
+<span class="doccomment">//!         PhysicalDeviceFeatures,</span>
+<span class="doccomment">//!         PhysicalDevice,</span>
+<span class="doccomment">//!         QueueFamilyInfo,</span>
+<span class="doccomment">//!         LogicalDevice,</span>
+<span class="doccomment">//!     },</span>
 <span class="doccomment">//! };</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! let instance = unsafe { VulkanInstance::new(&amp;[], &amp;[]).unwrap() };</span>
+<span class="doccomment">//! // Create a Vulkan instance.</span>
+<span class="doccomment">//! let mut instance = unsafe { VulkanInstance::new(&amp;[], &amp;[]).unwrap() };</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! let mut physical_device_features = PhysicalDeviceFeatures::default();</span>
-<span class="doccomment">//! physical_device_features.maintenance4_mut().maintenance4 = ash::vk::TRUE;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! PhysicalDevice::enumerate_supported_devices(</span>
+<span class="doccomment">//! // Pick a suitable physical device</span>
+<span class="doccomment">//! let physical_device = PhysicalDevice::enumerate_supported_devices(</span>
 <span class="doccomment">//!     &amp;instance,</span>
 <span class="doccomment">//!     &amp;PhysicalDeviceFeatures::default(),</span>
 <span class="doccomment">//! )</span>
 <span class="doccomment">//! .unwrap()</span>
-<span class="doccomment">//! .iter()</span>
-<span class="doccomment">//! .for_each(|device| {</span>
-<span class="doccomment">//!     log::info!(&quot;Found device {}&quot;, device.name());</span>
-<span class="doccomment">//! });</span>
+<span class="doccomment">//! .into_iter()</span>
+<span class="doccomment">//! .find(|device| {</span>
+<span class="doccomment">//!     // Find a device which has at least one queue family that supports</span>
+<span class="doccomment">//!     // compute operations.</span>
+<span class="doccomment">//!     device</span>
+<span class="doccomment">//!         .queue_family_properties()</span>
+<span class="doccomment">//!         .iter()</span>
+<span class="doccomment">//!         .any(|family_properties| {</span>
+<span class="doccomment">//!             family_properties</span>
+<span class="doccomment">//!                 .queue_flags</span>
+<span class="doccomment">//!                 .contains(vk::QueueFlags::COMPUTE)</span>
+<span class="doccomment">//!         })</span>
+<span class="doccomment">//! })</span>
+<span class="doccomment">//! .unwrap();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let compute_queue_index = physical_device</span>
+<span class="doccomment">//!     .queue_family_properties()</span>
+<span class="doccomment">//!     .iter()</span>
+<span class="doccomment">//!     .enumerate()</span>
+<span class="doccomment">//!     .find(|(_, properties)| {</span>
+<span class="doccomment">//!         properties.queue_flags.contains(vk::QueueFlags::COMPUTE)</span>
+<span class="doccomment">//!     })</span>
+<span class="doccomment">//!     .map(|(queue_family_index, _)| queue_family_index)</span>
+<span class="doccomment">//!     .unwrap();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let mut family_info = QueueFamilyInfo::new(compute_queue_index as u32);</span>
+<span class="doccomment">//! family_info.add_queue_priority(1.0);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let mut logical_device = unsafe {</span>
+<span class="doccomment">//!     LogicalDevice::new(&amp;instance, physical_device, &amp;[], &amp;[family_info])</span>
+<span class="doccomment">//!         .unwrap()</span>
+<span class="doccomment">//! };</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! log::info!(&quot;Created Logical device! {}&quot;, logical_device);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! unsafe { logical_device.destroy() };</span>
+<span class="doccomment">//! unsafe { instance.destroy() };</span>
 <span class="doccomment">//! ```</span>
 
 <span class="kw">mod</span> <span class="ident">error</span>;
+<span class="kw">mod</span> <span class="ident">ffi</span>;
+<span class="kw">mod</span> <span class="ident">logical_device</span>;
 <span class="kw">mod</span> <span class="ident">physical_device</span>;
 <span class="kw">mod</span> <span class="ident">vulkan_instance</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">error</span>::{<span class="ident">InstanceError</span>, <span class="ident">InstanceResult</span>},
+    <span class="ident">logical_device</span>::{<span class="ident">LogicalDevice</span>, <span class="ident">QueueFamilyInfo</span>},
     <span class="ident">physical_device</span>::{
         <span class="ident">PhysicalDevice</span>, <span class="ident">PhysicalDeviceFeatures</span>, <span class="ident">PhysicalDeviceProperties</span>,
     },

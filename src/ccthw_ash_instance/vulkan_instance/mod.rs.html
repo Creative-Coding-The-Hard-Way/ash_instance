@@ -173,46 +173,11 @@
 <span id="173">173</span>
 <span id="174">174</span>
 <span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
 </pre><pre class="rust"><code><span class="kw">use</span> {
     <span class="ident"><span class="kw">crate</span>::error::InstanceResult</span>,
     <span class="ident">ash</span>::{<span class="ident">extensions::ext::DebugUtils</span>, <span class="ident">vk</span>},
     <span class="ident">indoc::indoc</span>,
+    <span class="ident">std::fmt::Debug</span>,
 };
 
 <span class="kw">mod</span> <span class="ident">create_instance</span>;
@@ -346,57 +311,28 @@
         <span class="comment">// no-op</span>
     }
 
-    <span class="comment">// /// Create the logical device with the requested queues.</span>
-    <span class="comment">// pub fn create_logical_device(</span>
-    <span class="comment">//     &amp;self,</span>
-    <span class="comment">//     physical_device: &amp;vk::PhysicalDevice,</span>
-    <span class="comment">//     physical_device_extensions: &amp;[String],</span>
-    <span class="comment">//     queue_create_infos: &amp;[vk::DeviceQueueCreateInfo],</span>
-    <span class="comment">//     physical_device_features: PhysicalDeviceFeatures,</span>
-    <span class="comment">// ) -&gt; Result&lt;ash::Device, VulkanError&gt; {</span>
-    <span class="comment">//     let (_c_layer_names, layer_name_ptrs) =</span>
-    <span class="comment">//         unsafe { to_os_ptrs(&amp;self.layers) };</span>
-    <span class="comment">//     let (_c_ext_names, ext_name_ptrs) =</span>
-    <span class="comment">//         unsafe { to_os_ptrs(physical_device_extensions) };</span>
+    <span class="doccomment">/// Destroy the Vulkan instance.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Unsafe because:</span>
+    <span class="doccomment">///   - all resources which were created with this instance must be</span>
+    <span class="doccomment">///     destroyed prior to calling this function</span>
+    <span class="doccomment">///   - the ash instance must not be used after calling this function</span>
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">destroy</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">ash</span>.<span class="ident">destroy_instance</span>(<span class="prelude-val">None</span>);
+    }
+}
 
-    <span class="comment">//     let mut maintenance4_features =</span>
-    <span class="comment">//         vk::PhysicalDeviceMaintenance4Features {</span>
-    <span class="comment">//             ..physical_device_features.maintenance4</span>
-    <span class="comment">//         };</span>
-    <span class="comment">//     let mut descriptor_indexing_features =</span>
-    <span class="comment">//         vk::PhysicalDeviceDescriptorIndexingFeatures {</span>
-    <span class="comment">//             p_next: &amp;mut maintenance4_features</span>
-    <span class="comment">//                 as *mut vk::PhysicalDeviceMaintenance4Features</span>
-    <span class="comment">//                 as *mut c_void,</span>
-    <span class="comment">//             ..physical_device_features.descriptor_indexing_features</span>
-    <span class="comment">//         };</span>
-    <span class="comment">//     let physical_device_features_v2 = vk::PhysicalDeviceFeatures2 {</span>
-    <span class="comment">//         p_next: &amp;mut descriptor_indexing_features</span>
-    <span class="comment">//             as *mut vk::PhysicalDeviceDescriptorIndexingFeatures</span>
-    <span class="comment">//             as *mut c_void,</span>
-    <span class="comment">//         features: physical_device_features.features,</span>
-    <span class="comment">//         ..Default::default()</span>
-    <span class="comment">//     };</span>
-    <span class="comment">//     let create_info = vk::DeviceCreateInfo {</span>
-    <span class="comment">//         p_next: &amp;physical_device_features_v2</span>
-    <span class="comment">//             as *const vk::PhysicalDeviceFeatures2</span>
-    <span class="comment">//             as *const c_void,</span>
-    <span class="comment">//         queue_create_info_count: queue_create_infos.len() as u32,</span>
-    <span class="comment">//         p_queue_create_infos: queue_create_infos.as_ptr(),</span>
-    <span class="comment">//         p_enabled_features: std::ptr::null(),</span>
-    <span class="comment">//         pp_enabled_layer_names: layer_name_ptrs.as_ptr(),</span>
-    <span class="comment">//         enabled_layer_count: layer_name_ptrs.len() as u32,</span>
-    <span class="comment">//         pp_enabled_extension_names: ext_name_ptrs.as_ptr(),</span>
-    <span class="comment">//         enabled_extension_count: ext_name_ptrs.len() as u32,</span>
-    <span class="comment">//         ..Default::default()</span>
-    <span class="comment">//     };</span>
-
-    <span class="comment">//     unsafe {</span>
-    <span class="comment">//         self.ash</span>
-    <span class="comment">//             .create_device(*physical_device, &amp;create_info, None)</span>
-    <span class="comment">//             .map_err(VulkanError::UnableToCreateLogicalDevice)</span>
-    <span class="comment">//     }</span>
-    <span class="comment">// }</span>
+<span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">VulkanInstance</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
+        <span class="ident">formatter</span>
+            .<span class="ident">debug_struct</span>(<span class="string">&quot;VulkanInstance&quot;</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;layers&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">layers</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;extensions&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">extensions</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;is_debug_enabled&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">cfg!</span>(<span class="ident">debug_assertions</span>))
+            .<span class="ident">finish</span>()
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">VulkanInstance</span> {
@@ -410,14 +346,6 @@
             <span class="self">self</span>.<span class="ident">layers</span>(),
             <span class="self">self</span>.<span class="ident">extensions</span>()
         ))
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">VulkanInstance</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">ash</span>.<span class="ident">destroy_instance</span>(<span class="prelude-val">None</span>);
-        }
     }
 }
 </code></pre></div>
