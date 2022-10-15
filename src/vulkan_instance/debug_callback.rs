@@ -15,8 +15,7 @@ impl VulkanInstance {
     ///
     /// This is a no-op if the debug_asserts are not enabled.
     pub(super) fn setup_debug_logger(&mut self) -> InstanceResult<()> {
-        if !cfg!(debug_asserts) {
-            log::debug!("skip Vulkan debug setup for releas build");
+        if !cfg!(debug_assertions) {
             return Ok(());
         }
 
