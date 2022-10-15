@@ -54,7 +54,7 @@ pub fn create_logical_device() -> Result<()> {
             .unwrap()
     };
 
-    log::info!("Created Logical device! {}", logical_device);
+    log::info!("Created Logical device! {:#?}", logical_device);
 
     unsafe { logical_device.destroy() };
     unsafe { instance.destroy() };

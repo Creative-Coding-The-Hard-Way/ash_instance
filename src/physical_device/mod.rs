@@ -16,7 +16,7 @@ pub use self::{
 ///
 /// Physical devices are purely descriptive and can be cloned without concern
 /// for underlying GPU resources.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct PhysicalDevice {
     properties: PhysicalDeviceProperties,
     features: PhysicalDeviceFeatures,
@@ -117,9 +117,25 @@ impl PhysicalDevice {
     }
 }
 
+impl std::fmt::Debug for PhysicalDevice {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if formatter.alternate() {
+            formatter
+                .debug_struct("PhysicalDevice")
+                .field("properties", &self.properties)
+                .field("features", &self.features)
+                .field("available_extensions", &self.available_extensions)
+                .field("queue_family_properties", &self.queue_family_properties)
+                .finish()
+        } else {
+            formatter.write_str(&self.name())
+        }
+    }
+}
+
 impl std::fmt::Display for PhysicalDevice {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter.write_fmt(format_args!(indoc!("{}"), self.name(),))?;
+        formatter.write_fmt(format_args!(indoc!("{:?}"), self.name(),))?;
         Ok(())
     }
 }
