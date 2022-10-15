@@ -145,6 +145,15 @@ impl VulkanInstance {
     ///     destroyed prior to calling this function
     ///   - the ash instance must not be used after calling this function
     pub unsafe fn destroy(&mut self) {
+        if self.debug_utils.is_some() {
+            self.debug_utils
+                .as_ref()
+                .unwrap()
+                .destroy_debug_utils_messenger(
+                    self.debug_messenger.unwrap(),
+                    None,
+                );
+        }
         self.ash.destroy_instance(None);
     }
 }
