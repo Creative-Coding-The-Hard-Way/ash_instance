@@ -2,8 +2,9 @@ mod physical_device_features;
 mod physical_device_properties;
 
 use {
-    crate::{InstanceResult, VulkanHandle, VulkanInstance},
+    crate::{ffi, InstanceResult, VulkanHandle, VulkanInstance},
     ash::vk,
+    indoc::indoc,
 };
 
 pub use self::{
@@ -12,14 +13,29 @@ pub use self::{
 };
 
 /// A Vulkan physical device along with its properties and requested features.
-#[derive(Debug)]
+///
+/// Physical devices are purely descriptive and can be cloned without concern
+/// for underlying GPU resources.
+#[derive(Debug, Clone)]
 pub struct PhysicalDevice {
     properties: PhysicalDeviceProperties,
     features: PhysicalDeviceFeatures,
+    available_extensions: Vec<vk::ExtensionProperties>,
+    queue_family_properties: Vec<vk::QueueFamilyProperties>,
     physical_device: vk::PhysicalDevice,
 }
 
 impl PhysicalDevice {
+    /// Properties for all queue families supported by this device.
+    pub fn queue_family_properties(&self) -> &[vk::QueueFamilyProperties] {
+        &self.queue_family_properties
+    }
+
+    /// The set of all extensions available on this device.
+    pub fn available_extensions(&self) -> &[vk::ExtensionProperties] {
+        &self.available_extensions
+    }
+
     /// The properties for this physical device.
     pub fn properties(&self) -> &PhysicalDeviceProperties {
         &self.properties
@@ -32,16 +48,8 @@ impl PhysicalDevice {
 
     /// The physical device name from the device properties struct.
     pub fn name(&self) -> String {
-        String::from_utf8(
-            self.properties()
-                .properties()
-                .device_name
-                .into_iter()
-                .filter(|&c| c != 0)
-                .map(|c| c as u8)
-                .collect(),
-        )
-        .unwrap()
+        ffi::string_from_i8(&self.properties().properties().device_name)
+            .unwrap()
     }
 
     /// Enumerate all physical devices which support the required featuers.
@@ -55,7 +63,7 @@ impl PhysicalDevice {
         instance: &VulkanInstance,
         required_features: &PhysicalDeviceFeatures,
     ) -> InstanceResult<Vec<Self>> {
-        let devices_with_requested_features: Vec<Self> =
+        let all_supported_devices: Vec<vk::PhysicalDevice> =
             unsafe { instance.ash().enumerate_physical_devices()? }
                 .into_iter()
                 .filter(|physical_device| {
@@ -66,20 +74,45 @@ impl PhysicalDevice {
                         ),
                     )
                 })
-                .map(|physical_device| {
-                    let properties =
-                        PhysicalDeviceProperties::from_physical_device(
-                            instance,
-                            &physical_device,
-                        );
-                    Self {
-                        properties,
-                        features: *required_features,
-                        physical_device,
-                    }
-                })
                 .collect();
+
+        let mut devices_with_requested_features = vec![];
+        for physical_device in all_supported_devices {
+            let properties = PhysicalDeviceProperties::from_physical_device(
+                instance,
+                &physical_device,
+            );
+            let extension_properties = unsafe {
+                instance
+                    .ash()
+                    .enumerate_device_extension_properties(physical_device)?
+            };
+            let queue_family_properties = unsafe {
+                instance.ash().get_physical_device_queue_family_properties(
+                    physical_device,
+                )
+            };
+            devices_with_requested_features.push(Self {
+                properties,
+                features: *required_features,
+                available_extensions: extension_properties,
+                queue_family_properties,
+                physical_device,
+            });
+        }
+
         Ok(devices_with_requested_features)
+    }
+}
+
+impl std::fmt::Display for PhysicalDevice {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_fmt(format_args!(
+            indoc!("{:?} | {}"),
+            self.properties().properties().device_type,
+            self.name(),
+        ))?;
+        Ok(())
     }
 }
 

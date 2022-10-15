@@ -13,7 +13,7 @@ use {
 pub fn get_physical_device_with_features() -> Result<()> {
     common::setup_logger();
 
-    let instance = unsafe { VulkanInstance::new(&[], &[])? };
+    let mut instance = unsafe { VulkanInstance::new(&[], &[])? };
 
     // It's not possible to know what features or what devices might be
     // available on the testing machine. It's good enough to just verify
@@ -24,8 +24,10 @@ pub fn get_physical_device_with_features() -> Result<()> {
     )?
     .iter()
     .for_each(|device| {
-        log::info!("Found device {}", device.name());
+        log::info!("Found device {}", device);
     });
+
+    unsafe { instance.destroy() };
 
     Ok(())
 }

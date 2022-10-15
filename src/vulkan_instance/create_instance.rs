@@ -1,7 +1,7 @@
 use {
-    crate::{InstanceError, InstanceResult, VulkanInstance},
+    crate::{ffi, InstanceError, InstanceResult, VulkanInstance},
     ash::{extensions::ext::DebugUtils, vk},
-    std::ffi::{c_char, CString},
+    std::ffi::CString,
 };
 
 impl VulkanInstance {
@@ -27,9 +27,9 @@ impl VulkanInstance {
         Self::check_layers(&entry, required_layers)?;
 
         let (_layer_names, layer_ptrs) =
-            unsafe { Self::to_os_ptrs(required_layers) };
+            unsafe { ffi::to_os_ptrs(required_layers) };
         let (_ext_names, ext_ptrs) =
-            unsafe { Self::to_os_ptrs(required_extensions) };
+            unsafe { ffi::to_os_ptrs(required_extensions) };
 
         let app_name = CString::new("ash starter").unwrap();
         let engine_name = CString::new("no engine").unwrap();
@@ -73,16 +73,7 @@ impl VulkanInstance {
         let available_names: Vec<String> = entry
             .enumerate_instance_extension_properties(None)?
             .iter()
-            .map(|ext| {
-                String::from_utf8(
-                    ext.extension_name
-                        .into_iter()
-                        .filter(|&c| c != 0)
-                        .map(|c| c as u8)
-                        .collect(),
-                )
-            })
-            // only accept valid utf-8 extension names
+            .map(|ext| ffi::string_from_i8(&ext.extension_name))
             .filter_map(|item| item.ok())
             .collect();
 
@@ -118,17 +109,8 @@ impl VulkanInstance {
         let available_names: Vec<String> = entry
             .enumerate_instance_layer_properties()?
             .iter()
-            .map(|layer| {
-                String::from_utf8(
-                    layer
-                        .layer_name
-                        .into_iter()
-                        .filter(|&c| c != 0)
-                        .map(|c| c as u8)
-                        .collect(),
-                )
-                .unwrap()
-            })
+            .map(|layer| ffi::string_from_i8(&layer.layer_name))
+            .filter_map(|item| item.ok())
             .collect();
 
         log::debug!("Available Vulkan layers: {:?}", &available_names);
@@ -144,28 +126,5 @@ impl VulkanInstance {
         } else {
             Ok(())
         }
-    }
-
-    /// Build a vector of CStrings and a matching vector of pointers to those
-    /// strings.
-    ///
-    /// # Safety
-    ///
-    /// Unsafe because:
-    ///   - The pointers are only valid so long as the returned strings are not
-    ///     dropped or modified.
-    pub(super) unsafe fn to_os_ptrs(
-        strings: &[String],
-    ) -> (Vec<CString>, Vec<*const c_char>) {
-        let cstrings = strings
-            .iter()
-            .cloned()
-            .map(|str| CString::new(str).unwrap())
-            .collect::<Vec<CString>>();
-        let ptrs = cstrings
-            .iter()
-            .map(|cstr| cstr.as_ptr())
-            .collect::<Vec<*const c_char>>();
-        (cstrings, ptrs)
     }
 }

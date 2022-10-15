@@ -4,34 +4,74 @@
 //! # Examples
 //!
 //! ```
-//! use ccthw_ash_instance::{
-//!     VulkanInstance,
-//!     PhysicalDeviceFeatures,
-//!     PhysicalDevice
+//! use {
+//!     ash::vk,
+//!     ccthw_ash_instance::{
+//!         VulkanInstance,
+//!         PhysicalDeviceFeatures,
+//!         PhysicalDevice,
+//!         QueueFamilyInfo,
+//!         LogicalDevice,
+//!     },
 //! };
 //!
-//! let instance = unsafe { VulkanInstance::new(&[], &[]).unwrap() };
+//! // Create a Vulkan instance.
+//! let mut instance = unsafe { VulkanInstance::new(&[], &[]).unwrap() };
 //!
-//! let mut physical_device_features = PhysicalDeviceFeatures::default();
-//! physical_device_features.maintenance4_mut().maintenance4 = ash::vk::TRUE;
-//!
-//! PhysicalDevice::enumerate_supported_devices(
+//! // Pick a suitable physical device
+//! let physical_device = PhysicalDevice::enumerate_supported_devices(
 //!     &instance,
 //!     &PhysicalDeviceFeatures::default(),
 //! )
 //! .unwrap()
-//! .iter()
-//! .for_each(|device| {
-//!     log::info!("Found device {}", device.name());
-//! });
+//! .into_iter()
+//! .find(|device| {
+//!     // Find a device which has at least one queue family that supports
+//!     // compute operations.
+//!     device
+//!         .queue_family_properties()
+//!         .iter()
+//!         .any(|family_properties| {
+//!             family_properties
+//!                 .queue_flags
+//!                 .contains(vk::QueueFlags::COMPUTE)
+//!         })
+//! })
+//! .unwrap();
+//!
+//! let compute_queue_index = physical_device
+//!     .queue_family_properties()
+//!     .iter()
+//!     .enumerate()
+//!     .find(|(_, properties)| {
+//!         properties.queue_flags.contains(vk::QueueFlags::COMPUTE)
+//!     })
+//!     .map(|(queue_family_index, _)| queue_family_index)
+//!     .unwrap();
+//!
+//! let mut family_info = QueueFamilyInfo::new(compute_queue_index as u32);
+//! family_info.add_queue_priority(1.0);
+//!
+//! let mut logical_device = unsafe {
+//!     LogicalDevice::new(&instance, physical_device, &[], &[family_info])
+//!         .unwrap()
+//! };
+//!
+//! log::info!("Created Logical device! {}", logical_device);
+//!
+//! unsafe { logical_device.destroy() };
+//! unsafe { instance.destroy() };
 //! ```
 
 mod error;
+mod ffi;
+mod logical_device;
 mod physical_device;
 mod vulkan_instance;
 
 pub use self::{
     error::{InstanceError, InstanceResult},
+    logical_device::{LogicalDevice, QueueFamilyInfo},
     physical_device::{
         PhysicalDevice, PhysicalDeviceFeatures, PhysicalDeviceProperties,
     },

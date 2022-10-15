@@ -2,6 +2,7 @@ use {
     crate::error::InstanceResult,
     ash::{extensions::ext::DebugUtils, vk},
     indoc::indoc,
+    std::fmt::Debug,
 };
 
 mod create_instance;
@@ -135,57 +136,28 @@ impl VulkanInstance {
         // no-op
     }
 
-    // /// Create the logical device with the requested queues.
-    // pub fn create_logical_device(
-    //     &self,
-    //     physical_device: &vk::PhysicalDevice,
-    //     physical_device_extensions: &[String],
-    //     queue_create_infos: &[vk::DeviceQueueCreateInfo],
-    //     physical_device_features: PhysicalDeviceFeatures,
-    // ) -> Result<ash::Device, VulkanError> {
-    //     let (_c_layer_names, layer_name_ptrs) =
-    //         unsafe { to_os_ptrs(&self.layers) };
-    //     let (_c_ext_names, ext_name_ptrs) =
-    //         unsafe { to_os_ptrs(physical_device_extensions) };
+    /// Destroy the Vulkan instance.
+    ///
+    /// # Safety
+    ///
+    /// Unsafe because:
+    ///   - all resources which were created with this instance must be
+    ///     destroyed prior to calling this function
+    ///   - the ash instance must not be used after calling this function
+    pub unsafe fn destroy(&mut self) {
+        self.ash.destroy_instance(None);
+    }
+}
 
-    //     let mut maintenance4_features =
-    //         vk::PhysicalDeviceMaintenance4Features {
-    //             ..physical_device_features.maintenance4
-    //         };
-    //     let mut descriptor_indexing_features =
-    //         vk::PhysicalDeviceDescriptorIndexingFeatures {
-    //             p_next: &mut maintenance4_features
-    //                 as *mut vk::PhysicalDeviceMaintenance4Features
-    //                 as *mut c_void,
-    //             ..physical_device_features.descriptor_indexing_features
-    //         };
-    //     let physical_device_features_v2 = vk::PhysicalDeviceFeatures2 {
-    //         p_next: &mut descriptor_indexing_features
-    //             as *mut vk::PhysicalDeviceDescriptorIndexingFeatures
-    //             as *mut c_void,
-    //         features: physical_device_features.features,
-    //         ..Default::default()
-    //     };
-    //     let create_info = vk::DeviceCreateInfo {
-    //         p_next: &physical_device_features_v2
-    //             as *const vk::PhysicalDeviceFeatures2
-    //             as *const c_void,
-    //         queue_create_info_count: queue_create_infos.len() as u32,
-    //         p_queue_create_infos: queue_create_infos.as_ptr(),
-    //         p_enabled_features: std::ptr::null(),
-    //         pp_enabled_layer_names: layer_name_ptrs.as_ptr(),
-    //         enabled_layer_count: layer_name_ptrs.len() as u32,
-    //         pp_enabled_extension_names: ext_name_ptrs.as_ptr(),
-    //         enabled_extension_count: ext_name_ptrs.len() as u32,
-    //         ..Default::default()
-    //     };
-
-    //     unsafe {
-    //         self.ash
-    //             .create_device(*physical_device, &create_info, None)
-    //             .map_err(VulkanError::UnableToCreateLogicalDevice)
-    //     }
-    // }
+impl Debug for VulkanInstance {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("VulkanInstance")
+            .field("layers", &self.layers)
+            .field("extensions", &self.extensions)
+            .field("is_debug_enabled", &cfg!(debug_assertions))
+            .finish()
+    }
 }
 
 impl std::fmt::Display for VulkanInstance {
@@ -199,13 +171,5 @@ impl std::fmt::Display for VulkanInstance {
             self.layers(),
             self.extensions()
         ))
-    }
-}
-
-impl Drop for VulkanInstance {
-    fn drop(&mut self) {
-        unsafe {
-            self.ash.destroy_instance(None);
-        }
     }
 }
