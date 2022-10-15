@@ -150,12 +150,15 @@ impl std::fmt::Debug for LogicalDevice {
 impl std::fmt::Display for LogicalDevice {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         formatter.write_fmt(format_args!(
-            indoc!("LogicalDevice {:?} for {}"),
-            unsafe {
-                // SAFE because the handle is not retained
-                self.raw().handle()
-            },
-            self.physical_device
+            indoc!(
+                "
+                LogicalDevice {{
+                    physical_device: {},
+                    active_physical_device_extensions: {:?}
+                }}"
+            ),
+            self.physical_device,
+            self.active_physical_device_extensions(),
         ))?;
         Ok(())
     }

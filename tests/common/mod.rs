@@ -20,7 +20,7 @@ static mut LAST_NEWLINE_DELIM_MACHER: Option<Regex> = None;
 /// Setup console logging for tests.
 pub fn setup_logger() {
     INIT.call_once(|| {
-        let handle = Logger::try_with_env_or_str("trace")
+        let handle = Logger::try_with_env_or_str("debug")
             .expect("Unable to create logger from env variable!")
             .format(multiline_format)
             .start()

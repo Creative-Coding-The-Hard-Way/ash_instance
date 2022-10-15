@@ -119,11 +119,7 @@ impl PhysicalDevice {
 
 impl std::fmt::Display for PhysicalDevice {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter.write_fmt(format_args!(
-            indoc!("{:?} | {}"),
-            self.properties().properties().device_type,
-            self.name(),
-        ))?;
+        formatter.write_fmt(format_args!(indoc!("{}"), self.name(),))?;
         Ok(())
     }
 }

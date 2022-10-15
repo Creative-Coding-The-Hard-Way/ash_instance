@@ -1,7 +1,6 @@
 use {
     crate::error::InstanceResult,
     ash::{extensions::ext::DebugUtils, vk},
-    indoc::indoc,
     std::fmt::Debug,
 };
 
@@ -171,14 +170,6 @@ impl Debug for VulkanInstance {
 
 impl std::fmt::Display for VulkanInstance {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter.write_fmt(format_args!(
-            indoc!(
-                "VulkanInstance
-                  -> Layers: {:?}
-                  -> Extensions: {:?}"
-            ),
-            self.layers(),
-            self.extensions()
-        ))
+        formatter.write_fmt(format_args!("{:#?}", self))
     }
 }
