@@ -131,6 +131,22 @@
 <span id="131">131</span>
 <span id="132">132</span>
 <span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">physical_device_features</span>;
 <span class="kw">mod</span> <span class="ident">physical_device_properties</span>;
 
@@ -149,7 +165,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Physical devices are purely descriptive and can be cloned without concern</span>
 <span class="doccomment">/// for underlying GPU resources.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PhysicalDevice</span> {
     <span class="ident">properties</span>: <span class="ident">PhysicalDeviceProperties</span>,
     <span class="ident">features</span>: <span class="ident">PhysicalDeviceFeatures</span>,
@@ -250,9 +266,25 @@
     }
 }
 
+<span class="kw">impl</span> <span class="ident">std::fmt::Debug</span> <span class="kw">for</span> <span class="ident">PhysicalDevice</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
+        <span class="kw">if</span> <span class="ident">formatter</span>.<span class="ident">alternate</span>() {
+            <span class="ident">formatter</span>
+                .<span class="ident">debug_struct</span>(<span class="string">&quot;PhysicalDevice&quot;</span>)
+                .<span class="ident">field</span>(<span class="string">&quot;properties&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">properties</span>)
+                .<span class="ident">field</span>(<span class="string">&quot;features&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">features</span>)
+                .<span class="ident">field</span>(<span class="string">&quot;available_extensions&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">available_extensions</span>)
+                .<span class="ident">field</span>(<span class="string">&quot;queue_family_properties&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">queue_family_properties</span>)
+                .<span class="ident">finish</span>()
+        } <span class="kw">else</span> {
+            <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>())
+        }
+    }
+}
+
 <span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">PhysicalDevice</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="ident">formatter</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="macro">indoc!</span>(<span class="string">&quot;{}&quot;</span>), <span class="self">self</span>.<span class="ident">name</span>(),))<span class="question-mark">?</span>;
+        <span class="ident">formatter</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="macro">indoc!</span>(<span class="string">&quot;{:?}&quot;</span>), <span class="self">self</span>.<span class="ident">name</span>(),))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 }
