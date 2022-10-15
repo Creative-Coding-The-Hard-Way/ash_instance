@@ -83,7 +83,7 @@ unsafe extern "system" fn debug_callback(
         }
 
         DebugUtilsMessageSeverityFlagsEXT::INFO => {
-            log::info!("{}", full_message);
+            log::trace!("{}", full_message);
         }
 
         DebugUtilsMessageSeverityFlagsEXT::WARNING => {
