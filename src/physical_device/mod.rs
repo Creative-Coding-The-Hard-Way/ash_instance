@@ -21,6 +21,7 @@ pub struct PhysicalDevice {
     properties: PhysicalDeviceProperties,
     features: PhysicalDeviceFeatures,
     available_extensions: Vec<vk::ExtensionProperties>,
+    available_extension_names: Vec<String>,
     queue_family_properties: Vec<vk::QueueFamilyProperties>,
     physical_device: vk::PhysicalDevice,
 }
@@ -34,6 +35,11 @@ impl PhysicalDevice {
     /// The set of all extensions available on this device.
     pub fn available_extensions(&self) -> &[vk::ExtensionProperties] {
         &self.available_extensions
+    }
+
+    /// The set of all extension names available on this device.
+    pub fn available_extension_names(&self) -> &[String] {
+        &self.available_extension_names
     }
 
     /// The properties for this physical device.
@@ -87,6 +93,11 @@ impl PhysicalDevice {
                     .ash()
                     .enumerate_device_extension_properties(physical_device)?
             };
+            let extension_names: Vec<String> = extension_properties
+                .iter()
+                .map(|props| ffi::string_from_i8(&props.extension_name))
+                .filter_map(|name| name.ok())
+                .collect();
             let queue_family_properties = unsafe {
                 instance.ash().get_physical_device_queue_family_properties(
                     physical_device,
@@ -96,6 +107,7 @@ impl PhysicalDevice {
                 properties,
                 features: *required_features,
                 available_extensions: extension_properties,
+                available_extension_names: extension_names,
                 queue_family_properties,
                 physical_device,
             });
