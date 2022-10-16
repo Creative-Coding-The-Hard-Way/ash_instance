@@ -48,10 +48,10 @@ pub fn feature_should_not_be_supported_when_explicitly_disabled() {
     common::setup_logger();
 
     let mut desired_features = PhysicalDeviceFeatures::default();
-    desired_features.maintenance4_mut().maintenance4 = vk::TRUE;
+    desired_features.vulkan_13_features_mut().maintenance4 = vk::TRUE;
 
     let mut available_features = PhysicalDeviceFeatures::default();
-    available_features.maintenance4_mut().maintenance4 = vk::FALSE;
+    available_features.vulkan_13_features_mut().maintenance4 = vk::FALSE;
 
     assert!(!desired_features.is_supported_by(&available_features));
 }

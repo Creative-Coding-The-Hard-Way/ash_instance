@@ -16,11 +16,11 @@ impl PhysicalDeviceFeatures {
         fn this_and_not_that(this: u32, that: u32) -> bool {
             this == vk::TRUE && that == vk::FALSE
         }
-        macro_rules! check_maintenence4_feature {
+        macro_rules! check_vulkan_13_feature {
             ($feature_name:ident) => {
                 if this_and_not_that(
-                    self.maintenance4.$feature_name,
-                    available.maintenance4.$feature_name,
+                    self.physical_device_vulkan_13_features.$feature_name,
+                    available.physical_device_vulkan_13_features.$feature_name,
                 ) {
                     log::warn!(
                         "maintenence4 - {} is not supported",
@@ -115,7 +115,23 @@ impl PhysicalDeviceFeatures {
         check_feature!(variable_multisample_rate);
         check_feature!(inherited_queries);
 
-        check_maintenence4_feature!(maintenance4);
+        check_vulkan_13_feature!(robust_image_access);
+        check_vulkan_13_feature!(inline_uniform_block);
+        check_vulkan_13_feature!(
+            descriptor_binding_inline_uniform_block_update_after_bind
+        );
+        check_vulkan_13_feature!(pipeline_creation_cache_control);
+        check_vulkan_13_feature!(private_data);
+        check_vulkan_13_feature!(shader_demote_to_helper_invocation);
+        check_vulkan_13_feature!(shader_terminate_invocation);
+        check_vulkan_13_feature!(subgroup_size_control);
+        check_vulkan_13_feature!(compute_full_subgroups);
+        check_vulkan_13_feature!(synchronization2);
+        check_vulkan_13_feature!(texture_compression_astc_hdr);
+        check_vulkan_13_feature!(shader_zero_initialize_workgroup_memory);
+        check_vulkan_13_feature!(dynamic_rendering);
+        check_vulkan_13_feature!(shader_integer_dot_product);
+        check_vulkan_13_feature!(maintenance4);
 
         check_descriptor_indexing_feature!(
             shader_input_attachment_array_dynamic_indexing

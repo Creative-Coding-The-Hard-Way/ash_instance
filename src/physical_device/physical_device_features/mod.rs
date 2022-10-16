@@ -7,7 +7,7 @@ mod is_supported_by;
 pub struct PhysicalDeviceFeatures {
     physical_device_features2: vk::PhysicalDeviceFeatures2,
     descriptor_indexing_features: vk::PhysicalDeviceDescriptorIndexingFeatures,
-    maintenance4: vk::PhysicalDeviceMaintenance4Features,
+    physical_device_vulkan_13_features: vk::PhysicalDeviceVulkan13Features,
 }
 
 impl VulkanInstance {}
@@ -54,14 +54,14 @@ impl PhysicalDeviceFeatures {
         &mut self.descriptor_indexing_features
     }
 
-    pub fn maintenance4(&self) -> &vk::PhysicalDeviceMaintenance4Features {
-        &self.maintenance4
+    pub fn vulkan_13_features(&self) -> &vk::PhysicalDeviceVulkan13Features {
+        &self.physical_device_vulkan_13_features
     }
 
-    pub fn maintenance4_mut(
+    pub fn vulkan_13_features_mut(
         &mut self,
-    ) -> &mut vk::PhysicalDeviceMaintenance4Features {
-        &mut self.maintenance4
+    ) -> &mut vk::PhysicalDeviceVulkan13Features {
+        &mut self.physical_device_vulkan_13_features
     }
 
     /// Link all of the contained device feature structs using their p_next
@@ -78,8 +78,9 @@ impl PhysicalDeviceFeatures {
             .descriptor_indexing_features
             as *mut vk::PhysicalDeviceDescriptorIndexingFeatures
             as *mut c_void;
-        self.descriptor_indexing_features.p_next = &mut self.maintenance4
-            as *mut vk::PhysicalDeviceMaintenance4Features
+        self.descriptor_indexing_features.p_next = &mut self
+            .physical_device_vulkan_13_features
+            as *mut vk::PhysicalDeviceVulkan13Features
             as *mut c_void;
         &mut self.physical_device_features2
     }
