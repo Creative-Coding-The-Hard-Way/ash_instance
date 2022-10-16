@@ -84,6 +84,7 @@
 <span id="84">84</span>
 <span id="85">85</span>
 <span id="86">86</span>
+<span id="87">87</span>
 </pre><pre class="rust"><code><span class="kw">use</span> {<span class="ident"><span class="kw">crate</span>::VulkanInstance</span>, <span class="ident">ash::vk</span>, <span class="ident">std::ffi::c_void</span>};
 
 <span class="kw">mod</span> <span class="ident">is_supported_by</span>;
@@ -93,7 +94,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PhysicalDeviceFeatures</span> {
     <span class="ident">physical_device_features2</span>: <span class="ident">vk::PhysicalDeviceFeatures2</span>,
     <span class="ident">descriptor_indexing_features</span>: <span class="ident">vk::PhysicalDeviceDescriptorIndexingFeatures</span>,
-    <span class="ident">maintenance4</span>: <span class="ident">vk::PhysicalDeviceMaintenance4Features</span>,
+    <span class="ident">physical_device_vulkan_13_features</span>: <span class="ident">vk::PhysicalDeviceVulkan13Features</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">VulkanInstance</span> {}
@@ -140,14 +141,14 @@
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">descriptor_indexing_features</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maintenance4</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">vk::PhysicalDeviceMaintenance4Features</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">maintenance4</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vulkan_13_features</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">vk::PhysicalDeviceVulkan13Features</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">physical_device_vulkan_13_features</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maintenance4_mut</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vulkan_13_features_mut</span>(
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-    ) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">vk::PhysicalDeviceMaintenance4Features</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">maintenance4</span>
+    ) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">vk::PhysicalDeviceVulkan13Features</span> {
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">physical_device_vulkan_13_features</span>
     }
 
     <span class="doccomment">/// Link all of the contained device feature structs using their p_next</span>
@@ -164,8 +165,9 @@
             .<span class="ident">descriptor_indexing_features</span>
             <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">vk::PhysicalDeviceDescriptorIndexingFeatures</span>
             <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>;
-        <span class="self">self</span>.<span class="ident">descriptor_indexing_features</span>.<span class="ident">p_next</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">maintenance4</span>
-            <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">vk::PhysicalDeviceMaintenance4Features</span>
+        <span class="self">self</span>.<span class="ident">descriptor_indexing_features</span>.<span class="ident">p_next</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>
+            .<span class="ident">physical_device_vulkan_13_features</span>
+            <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">vk::PhysicalDeviceVulkan13Features</span>
             <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>;
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">physical_device_features2</span>
     }

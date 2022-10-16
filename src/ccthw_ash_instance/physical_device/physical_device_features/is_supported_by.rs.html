@@ -177,6 +177,22 @@
 <span id="177">177</span>
 <span id="178">178</span>
 <span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
 </pre><pre class="rust"><code><span class="kw">use</span> {<span class="ident"><span class="kw">crate</span>::PhysicalDeviceFeatures</span>, <span class="ident">ash::vk</span>};
 
 <span class="kw">impl</span> <span class="ident">PhysicalDeviceFeatures</span> {
@@ -195,11 +211,11 @@
         <span class="kw">fn</span> <span class="ident">this_and_not_that</span>(<span class="ident">this</span>: <span class="ident">u32</span>, <span class="ident">that</span>: <span class="ident">u32</span>) -&gt; <span class="ident">bool</span> {
             <span class="ident">this</span> <span class="op">==</span> <span class="ident">vk::TRUE</span> <span class="op">&amp;&amp;</span> <span class="ident">that</span> <span class="op">==</span> <span class="ident">vk::FALSE</span>
         }
-        <span class="macro">macro_rules!</span> <span class="ident">check_maintenence4_feature</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">check_vulkan_13_feature</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">feature_name</span>:<span class="ident">ident</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">this_and_not_that</span>(
-                    <span class="self">self</span>.<span class="ident">maintenance4</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">feature_name</span>,
-                    <span class="ident">available</span>.<span class="ident">maintenance4</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">feature_name</span>,
+                    <span class="self">self</span>.<span class="ident">physical_device_vulkan_13_features</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">feature_name</span>,
+                    <span class="ident">available</span>.<span class="ident">physical_device_vulkan_13_features</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">feature_name</span>,
                 ) {
                     <span class="macro">log::warn!</span>(
                         <span class="string">&quot;maintenence4 - {} is not supported&quot;</span>,
@@ -294,7 +310,23 @@
         <span class="macro">check_feature!</span>(<span class="ident">variable_multisample_rate</span>);
         <span class="macro">check_feature!</span>(<span class="ident">inherited_queries</span>);
 
-        <span class="macro">check_maintenence4_feature!</span>(<span class="ident">maintenance4</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">robust_image_access</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">inline_uniform_block</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(
+            <span class="ident">descriptor_binding_inline_uniform_block_update_after_bind</span>
+        );
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">pipeline_creation_cache_control</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">private_data</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">shader_demote_to_helper_invocation</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">shader_terminate_invocation</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">subgroup_size_control</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">compute_full_subgroups</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">synchronization2</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">texture_compression_astc_hdr</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">shader_zero_initialize_workgroup_memory</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">dynamic_rendering</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">shader_integer_dot_product</span>);
+        <span class="macro">check_vulkan_13_feature!</span>(<span class="ident">maintenance4</span>);
 
         <span class="macro">check_descriptor_indexing_feature!</span>(
             <span class="ident">shader_input_attachment_array_dynamic_indexing</span>
