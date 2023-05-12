@@ -14,7 +14,7 @@ pub fn create_logical_device() -> Result<()> {
     common::setup_logger();
 
     // Create a Vulkan instance.
-    let mut instance = unsafe { VulkanInstance::new(&[], &[])? };
+    let instance = unsafe { VulkanInstance::new(&[], &[])? };
 
     // Pick a suitable physical device
     let physical_device = PhysicalDevice::enumerate_supported_devices(
@@ -49,15 +49,12 @@ pub fn create_logical_device() -> Result<()> {
     let mut family_info = QueueFamilyInfo::new(compute_queue_index as u32);
     family_info.add_queue_priority(1.0);
 
-    let mut logical_device = unsafe {
+    let logical_device = unsafe {
         LogicalDevice::new(&instance, physical_device, &[], &[family_info])
             .unwrap()
     };
 
     log::info!("Created Logical device! {:#?}", logical_device);
-
-    unsafe { logical_device.destroy() };
-    unsafe { instance.destroy() };
 
     Ok(())
 }

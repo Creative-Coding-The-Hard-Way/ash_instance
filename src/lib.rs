@@ -58,9 +58,6 @@
 //! };
 //!
 //! log::info!("Created Logical device! {}", logical_device);
-//!
-//! unsafe { logical_device.destroy() };
-//! unsafe { instance.destroy() };
 //! ```
 
 mod error;

@@ -37,8 +37,9 @@ impl VulkanInstance {
     ///
     /// # Safety
     ///
-    /// The Application must ensure that all device resources created with the
-    /// instance are destroyed proior to dropping the returned struct.
+    /// Unsafe because:
+    ///   - The Application must ensure that all device resources created with
+    ///     the instance are destroyed proior to dropping this struct.
     pub unsafe fn new(
         required_extensions: &[String],
         required_layers: &[String],
@@ -134,26 +135,30 @@ impl VulkanInstance {
     ) {
         // no-op
     }
+}
 
-    /// Destroy the Vulkan instance.
+impl Drop for VulkanInstance {
+    /// Drop the instance.
     ///
     /// # Safety
     ///
-    /// Unsafe because:
-    ///   - all resources which were created with this instance must be
-    ///     destroyed prior to calling this function
-    ///   - the ash instance must not be used after calling this function
-    pub unsafe fn destroy(&mut self) {
-        if self.debug_utils.is_some() {
-            self.debug_utils
-                .as_ref()
-                .unwrap()
-                .destroy_debug_utils_messenger(
-                    self.debug_messenger.unwrap(),
-                    None,
-                );
+    /// Implicitly unsafe because:
+    ///   - dropping the instance while Vulkan resources still exist can result
+    ///     in undefined behavior.
+    ///   - use Vulkan validation layers to verify correct resource management.
+    fn drop(&mut self) {
+        unsafe {
+            if self.debug_utils.is_some() {
+                self.debug_utils
+                    .as_ref()
+                    .unwrap()
+                    .destroy_debug_utils_messenger(
+                        self.debug_messenger.unwrap(),
+                        None,
+                    );
+            }
+            self.ash.destroy_instance(None);
         }
-        self.ash.destroy_instance(None);
     }
 }
 

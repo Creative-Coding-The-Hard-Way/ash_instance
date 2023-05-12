@@ -10,11 +10,9 @@ use {
 pub fn create_instance() -> Result<()> {
     common::setup_logger();
 
-    let mut instance = unsafe { VulkanInstance::new(&[], &[])? };
+    let instance = unsafe { VulkanInstance::new(&[], &[])? };
 
     log::info!("Successfully Created Instance - {}", instance);
-
-    unsafe { instance.destroy() };
 
     Ok(())
 }

@@ -120,16 +120,19 @@ impl LogicalDevice {
             device,
         })
     }
+}
 
+impl Drop for LogicalDevice {
     /// Destroy the logical device.
     ///
     /// # Safety
     ///
     /// Unsafe because:
-    ///   - The logical device must not be used after calling this function.
-    ///   - This function must be called before the instance is destroyed.
-    pub unsafe fn destroy(&mut self) {
-        self.device.destroy_device(None);
+    ///   - The logical device must be dropped before the instance is destroyed.
+    fn drop(&mut self) {
+        unsafe {
+            self.device.destroy_device(None);
+        }
     }
 }
 
