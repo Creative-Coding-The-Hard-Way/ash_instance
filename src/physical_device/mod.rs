@@ -82,12 +82,14 @@ impl PhysicalDevice {
                             instance,
                             physical_device,
                         );
+                    let is_supported =
+                        required_features.is_supported_by(&available_features);
                     log::trace!(
-                        "Physical Device {:?}\nHas features: {:#?}",
+                        "Physical Device {:?}\nHas All Features? {}",
                         physical_device,
-                        available_features
+                        is_supported,
                     );
-                    required_features.is_supported_by(&available_features)
+                    is_supported
                 })
                 .collect();
 
