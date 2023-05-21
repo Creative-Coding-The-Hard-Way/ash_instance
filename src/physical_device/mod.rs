@@ -69,16 +69,25 @@ impl PhysicalDevice {
         instance: &VulkanInstance,
         required_features: &PhysicalDeviceFeatures,
     ) -> InstanceResult<Vec<Self>> {
+        log::trace!(
+            "Looking for a device with the following features:/n{:#?}",
+            required_features
+        );
         let all_supported_devices: Vec<vk::PhysicalDevice> =
             unsafe { instance.ash().enumerate_physical_devices()? }
                 .into_iter()
                 .filter(|physical_device| {
-                    required_features.is_supported_by(
-                        &PhysicalDeviceFeatures::from_physical_device(
+                    let available_features =
+                        PhysicalDeviceFeatures::from_physical_device(
                             instance,
                             physical_device,
-                        ),
-                    )
+                        );
+                    log::trace!(
+                        "Physical Device {:?}\nHas features: {:#?}",
+                        physical_device,
+                        available_features
+                    );
+                    required_features.is_supported_by(&available_features)
                 })
                 .collect();
 
