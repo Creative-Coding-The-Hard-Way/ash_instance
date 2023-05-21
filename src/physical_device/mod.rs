@@ -70,7 +70,7 @@ impl PhysicalDevice {
         required_features: &PhysicalDeviceFeatures,
     ) -> InstanceResult<Vec<Self>> {
         log::trace!(
-            "Looking for a device with the following features:/n{:#?}",
+            "Looking for a device with the following features:\n{:#?}",
             required_features
         );
         let all_supported_devices: Vec<vk::PhysicalDevice> =
