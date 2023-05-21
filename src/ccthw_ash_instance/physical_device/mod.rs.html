@@ -228,7 +228,7 @@
         required_features: <span class="kw-2">&amp;</span>PhysicalDeviceFeatures,
     ) -&gt; InstanceResult&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="macro">log::trace!</span>(
-            <span class="string">&quot;Looking for a device with the following features:/n{:#?}&quot;</span>,
+            <span class="string">&quot;Looking for a device with the following features:\n{:#?}&quot;</span>,
             required_features
         );
         <span class="kw">let </span>all_supported_devices: Vec&lt;vk::PhysicalDevice&gt; =
