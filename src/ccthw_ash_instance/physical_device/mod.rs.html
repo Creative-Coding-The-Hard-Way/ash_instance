@@ -156,6 +156,8 @@
 <a href="#156" id="156">156</a>
 <a href="#157" id="157">157</a>
 <a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>physical_device_features;
 <span class="kw">mod </span>physical_device_properties;
 
@@ -240,12 +242,14 @@
                             instance,
                             physical_device,
                         );
+                    <span class="kw">let </span>is_supported =
+                        required_features.is_supported_by(<span class="kw-2">&amp;</span>available_features);
                     <span class="macro">log::trace!</span>(
-                        <span class="string">&quot;Physical Device {:?}\nHas features: {:#?}&quot;</span>,
+                        <span class="string">&quot;Physical Device {:?}\nHas All Features? {}&quot;</span>,
                         physical_device,
-                        available_features
+                        is_supported,
                     );
-                    required_features.is_supported_by(<span class="kw-2">&amp;</span>available_features)
+                    is_supported
                 })
                 .collect();
 
