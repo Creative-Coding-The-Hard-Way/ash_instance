@@ -147,6 +147,15 @@
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
 <a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>physical_device_features;
 <span class="kw">mod </span>physical_device_properties;
 
@@ -218,16 +227,25 @@
         instance: <span class="kw-2">&amp;</span>VulkanInstance,
         required_features: <span class="kw-2">&amp;</span>PhysicalDeviceFeatures,
     ) -&gt; InstanceResult&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
+        <span class="macro">log::trace!</span>(
+            <span class="string">&quot;Looking for a device with the following features:/n{:#?}&quot;</span>,
+            required_features
+        );
         <span class="kw">let </span>all_supported_devices: Vec&lt;vk::PhysicalDevice&gt; =
             <span class="kw">unsafe </span>{ instance.ash().enumerate_physical_devices()<span class="question-mark">? </span>}
                 .into_iter()
                 .filter(|physical_device| {
-                    required_features.is_supported_by(
-                        <span class="kw-2">&amp;</span>PhysicalDeviceFeatures::from_physical_device(
+                    <span class="kw">let </span>available_features =
+                        PhysicalDeviceFeatures::from_physical_device(
                             instance,
                             physical_device,
-                        ),
-                    )
+                        );
+                    <span class="macro">log::trace!</span>(
+                        <span class="string">&quot;Physical Device {:?}\nHas features: {:#?}&quot;</span>,
+                        physical_device,
+                        available_features
+                    );
+                    required_features.is_supported_by(<span class="kw-2">&amp;</span>available_features)
                 })
                 .collect();
 
