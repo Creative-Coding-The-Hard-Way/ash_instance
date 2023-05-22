@@ -65,6 +65,9 @@ unsafe extern "system" fn debug_callback(
     };
 
     let message_number = callback_data.message_id_number;
+    if message_number == 0 {
+        return vk::FALSE;
+    }
 
     let raw_message = std::format!(
         "VULKAN DEBUG CALLBACK - {:?}::{:?} - [{} ({})]\n\n{}",
