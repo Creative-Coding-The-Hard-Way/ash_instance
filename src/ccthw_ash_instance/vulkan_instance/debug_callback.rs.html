@@ -101,6 +101,9 @@
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
 </pre><pre class="rust"><code><span class="kw">use </span>{
     <span class="kw">crate</span>::{InstanceResult, VulkanInstance},
     ash::{
@@ -168,6 +171,9 @@
     };
 
     <span class="kw">let </span>message_number = callback_data.message_id_number;
+    <span class="kw">if </span>message_number == <span class="number">0 </span>{
+        <span class="kw">return </span>vk::FALSE;
+    }
 
     <span class="kw">let </span>raw_message = <span class="macro">std::format!</span>(
         <span class="string">&quot;VULKAN DEBUG CALLBACK - {:?}::{:?} - [{} ({})]\n\n{}&quot;</span>,
