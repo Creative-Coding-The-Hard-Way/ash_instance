@@ -18,6 +18,21 @@ pub fn create_instance() -> Result<()> {
 }
 
 #[test]
+pub fn send_between_threads() -> Result<()> {
+    common::setup_logger();
+
+    let instance = unsafe { VulkanInstance::new(&[], &[])? };
+
+    let thread = std::thread::spawn(move || {
+        log::info!("Successfully Created Instance - {}", instance);
+    });
+
+    thread.join().unwrap();
+
+    Ok(())
+}
+
+#[test]
 pub fn missing_extensions_should_fail() {
     common::setup_logger();
 

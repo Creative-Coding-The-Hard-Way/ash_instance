@@ -10,8 +10,6 @@ pub struct PhysicalDeviceFeatures {
     physical_device_vulkan_13_features: vk::PhysicalDeviceVulkan13Features,
 }
 
-impl VulkanInstance {}
-
 impl PhysicalDeviceFeatures {
     /// Get the physical device features for a given device.
     ///
