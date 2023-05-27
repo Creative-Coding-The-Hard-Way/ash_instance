@@ -26,6 +26,19 @@ pub struct PhysicalDevice {
     physical_device: vk::PhysicalDevice,
 }
 
+/// # Safety
+///
+/// Send must be implemented explicitly because the PhysicalDevice struct
+/// contains the PhysicalDeviceProperties and PhysicalDeviceFeatures structs.
+/// Both of these structs contain Vulkan CreateInfo style structs with p_next
+/// pointers.
+///
+/// Those pointers should never be used outside of the single scope where
+/// the relevant structs are linked together. Therefore, the structs are not
+/// Send by construction, but their usage within the Physical Device IS Send
+/// compatible.
+unsafe impl Send for PhysicalDevice {}
+
 impl PhysicalDevice {
     /// Properties for all queue families supported by this device.
     pub fn queue_family_properties(&self) -> &[vk::QueueFamilyProperties] {
