@@ -83,8 +83,6 @@
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
 <a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
 </pre><pre class="rust"><code><span class="kw">use </span>{<span class="kw">crate</span>::VulkanInstance, ash::vk, std::ffi::c_void};
 
 <span class="kw">mod </span>is_supported_by;
@@ -96,8 +94,6 @@
     descriptor_indexing_features: vk::PhysicalDeviceDescriptorIndexingFeatures,
     physical_device_vulkan_13_features: vk::PhysicalDeviceVulkan13Features,
 }
-
-<span class="kw">impl </span>VulkanInstance {}
 
 <span class="kw">impl </span>PhysicalDeviceFeatures {
     <span class="doccomment">/// Get the physical device features for a given device.
