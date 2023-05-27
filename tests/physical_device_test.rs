@@ -70,3 +70,26 @@ pub fn features_should_be_supported_when_explicitly_enabled() {
 
     assert!(desired_features.is_supported_by(&available_features));
 }
+
+#[test]
+pub fn send_physical_device() -> Result<()> {
+    common::setup_logger();
+
+    let instance = unsafe { VulkanInstance::new(&[], &[])? };
+
+    let device = PhysicalDevice::enumerate_supported_devices(
+        &instance,
+        &PhysicalDeviceFeatures::default(),
+    )?
+    .into_iter()
+    .next()
+    .unwrap();
+
+    let thread = std::thread::spawn(move || {
+        log::info!("Got device: {}", device);
+    });
+
+    thread.join().unwrap();
+
+    Ok(())
+}
