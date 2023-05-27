@@ -22,6 +22,13 @@ pub struct LogicalDevice {
     device: ash::Device,
 }
 
+/// # Safety
+///
+/// The LogicalDevice is generally safe to interact with from multiple threads.
+/// Specific Vulkan operations must be synchronized externally and are
+/// documented in the Vulkan spec.
+unsafe impl Sync for LogicalDevice {}
+
 impl LogicalDevice {
     /// Get the physical device being controlled by this logical device.
     pub fn physical_device(&self) -> &PhysicalDevice {
