@@ -6,6 +6,8 @@ pub struct PhysicalDeviceProperties {
     physical_device_properties: vk::PhysicalDeviceProperties2,
 }
 
+unsafe impl Send for PhysicalDeviceProperties {}
+
 impl PhysicalDeviceProperties {
     /// Get the properties from a physical device.
     pub fn from_physical_device(
